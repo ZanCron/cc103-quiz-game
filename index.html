@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CC103 - Quiz Game</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+<style>
+.glow {
+    text-shadow: 0 0 5px #a855f7, 0 0 10px #8b5cf6, 0 0 20px #7c3aed, 0 0 40px #7c3aed;
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+    0%,100% { text-shadow: 0 0 5px #a855f7,0 0 10px #8b5cf6,0 0 20px #7c3aed,0 0 40px #7c3aed;}
+    50% { text-shadow: 0 0 10px #d8b4fe,0 0 20px #c084fc,0 0 30px #a855f7,0 0 50px #7c3aed;}
+}
+</style>
+</head>
+<body class="bg-gray-900 flex flex-col items-center justify-center min-h-screen p-6 text-white">
+
+<div class="w-full max-w-3xl" id="quizWrapper">
+    <div id="quizBox" class="space-y-8">
+        <h2 class="text-4xl font-bold mb-12 text-white uppercase text-center tracking-widest glow">
+            Computer Programming II QUIZ
+        </h2>
+
+        <div id="nameBox" class="bg-gray-800/80 p-5 rounded-2xl text-center shadow-lg">
+            <h3 class="text-2xl font-bold mb-2 text-white">Enter Your Name Before Starting</h3>
+             <p class="text-gray-300 mb-6">Please provide your full name so we can track your quiz progress and generate results accurately.</p>
+            <div class="relative w-4/5 mx-auto">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <i class="fas fa-user"></i>
+                </span>
+                <input type="text" id="studentName" placeholder="Enter your full name"
+                    class="p-3 pl-10 w-full rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 uppercase font-bold">
+            </div>
+            <br><br>
+            <button id="continueBtn" 
+                class="bg-purple-600 text-white font-semibold px-6 py-3 rounded-lg flex items-center gap-2 mx-auto shadow-md
+                transition duration-300 transform hover:scale-105 overflow-hidden relative">
+                <span>Get Started</span>
+                <i class="fas fa-arrow-right transition-transform duration-500" id="arrowIcon"></i>
+            </button>
+        </div>
+
+        <div id="instructionBox" class="hidden relative bg-gray-800/90 p-6 rounded-2xl text-left space-y-4 shadow-2xl border border-purple-600/30 backdrop-blur-md">
+            <h3 class="font-bold text-xl mb-2 text-white uppercase text-center tracking-wide glow">
+                📌 General Instructions
+            </h3>
+            <div class="flex flex-col items-center text-gray-300 text-center font-bold text-sm space-y-3">
+    <p class="flex items-center gap-2">
+        <span class="w-3 h-3 bg-purple-500 rounded-full inline-block"></span>
+        Read each question carefully.
+    </p>
+    <p class="flex items-center gap-2">
+        <span class="w-3 h-3 bg-purple-500 rounded-full inline-block"></span>
+        Questions and choices are shuffled.
+    </p>
+    <p class="flex items-center gap-2">
+        <span class="w-3 h-3 bg-purple-500 rounded-full inline-block"></span>
+        Select only ONE answer.
+    </p>
+    <p class="flex items-center gap-2">
+        <span class="w-3 h-3 bg-purple-500 rounded-full inline-block"></span>
+        Do not refresh or leave the page.
+    </p>
+    <p class="flex items-center gap-2">
+        <span class="w-3 h-3 bg-purple-500 rounded-full inline-block"></span>
+        Switching tabs will terminate the quiz.
+    </p>
+    <!-- Total questions placeholder -->
+    <p class="flex text-2xl items-center gap-2 text-yellow-400" id="totalQuestions">
+        <span class="w-3 h-3 bg-yellow-400 rounded-full inline-block"></span>
+        Total Questions: 0
+    </p>
+</div>
+
+   <br>
+            <div class="flex justify-center mt-12">
+                <button id="startBtn" 
+                    class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-8 py-3 rounded-xl shadow-lg transition duration-300 transform hover:scale-105 flex items-center gap-2">
+                    <span id="btnText">Start Quiz</span>
+                    <i class="fas fa-arrow-right transition-transform duration-500"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="question" class="hidden text-white text-lg font-medium"></div>
+        <div id="options" class="hidden space-y-3"></div>
+        <div class="text-center">
+            <button id="nextBtn" class="bg-green-700 hover:bg-green-800 px-6 py-3 rounded-lg font-semibold text-white shadow-md transition duration-300 hidden flex items-center justify-center gap-2 mx-auto">
+                Next Question
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <div id="scoreContainer" class="hidden bg-gray-800/80 p-8 rounded-2xl text-center shadow-lg text-white"></div>
+</div>
+
+<footer class="mt-10 bg-gray-900/90 text-gray-400 text-center px-3 rounded-t-2xl shadow-inner">
+    <p class="mb-2 font-bold" style="font-size: 14px;">&copy; 2026 rontuba0911@gmail.com. All rights reserved.</p>
+    <p class="text-sm">Designed for Quiz | Developed using Tailwind CSS</p>
+</footer>
+
+<script>
+// ===================== BLOCK IF TERMINATED =====================
+if(localStorage.getItem("quizTerminated") === "true"){
+    document.body.innerHTML = `
+    <div class="flex flex-col justify-center items-center min-h-screen text-red-600 text-4xl font-bold text-center">
+        ACCESS DENIED ❌
+        <hr>
+        <p class="text-lg mt-3">You are temporarily blocked from this quiz.</p>
+        <div class="mt-8 flex flex-col items-center space-y-4 w-full max-w-md px-4">
+            <input type="password" id="adminPass" placeholder="Enter password"
+                class="p-2  text-lg w-80 rounded border text-black text-lg">
+                <small class="text-sm font-normal">Enter the password to reset the quiz. Ask the instructor.</small>
+            <button id="clearStorageBtn"
+                class="px-6 py-2 bg-green-600 text-white text-lg font-bold rounded">
+                Proceed
+            </button>
+        </div>
+    </div>`;
+    document.getElementById("clearStorageBtn").onclick = () => {
+        if(document.getElementById("adminPass").value === "admin123"){
+            localStorage.clear();
+            location.reload();
+        } else { alert("Incorrect password!"); }
+    };
+    throw new Error("Blocked");
+}
+
+const quiz = [
+    {q:"A programmer repeats grading logic in multiple parts of a system. What is the BEST solution?", options:["Create one reusable method for grading","Copy the same code into every class","Add more variables to each section","Place all program logic inside main"], answer:0},
+    
+    {q:"Which situation BEST demonstrates modular programming?", options:["Dividing tasks into small reusable methods","Writing everything inside one long method","Using repeated print statements everywhere","Declaring all variables as global"], answer:0},
+    
+    {q:"Why is method overloading useful in program design?", options:["Groups similar tasks under one name","Removes the need for return statements","Prevents all possible logic errors","Automatically improves database speed"], answer:0},
+    
+    {q:"Which modification correctly applies method overloading?", options:["Changing number or type of parameters","Changing only the return type","Renaming the existing method","Moving method to another class"], answer:0},
+    
+    {q:"What is the MOST critical component of recursion?", options:["Clearly defined base case condition","Large number of local variables","Multiple overloaded versions","Several nested loop statements"], answer:0},
+    
+    {q:"Why can missing a base case cause serious problems?", options:["It leads to infinite recursive calls","It changes parameter data types","It prevents value returning","It removes compiler warnings"], answer:0},
+    
+    {q:"Which task is MOST appropriate for recursion?", options:["Solving factorial or Fibonacci problems","Displaying fixed number of messages","Reading input using Scanner","Printing values inside simple loop"], answer:0},
+    
+    {q:"In a grading system, which structure BEST shows modularity?", options:["Separate methods for input compute display","One large method handling all operations","Multiple nested loops for calculations","Repeated conditions throughout program"], answer:0},
+    
+    {q:"What is the main advantage of modular programming?", options:["Improves readability and maintainability","Increases the number of variables","Reduces user interaction required","Eliminates all runtime errors"], answer:0},
+    
+    {q:"Which design BEST improves scalability in large systems?", options:["Dividing features into separate classes","Writing all logic inside main method","Using only global shared variables","Combining database and interface code"], answer:0},
+    
+    {q:"Why is PreparedStatement preferred over Statement?", options:["Prevents SQL injection vulnerabilities","Removes the need for SQL syntax","Eliminates database connections","Guarantees faster execution speed"], answer:0},
+    
+    {q:"Which practice BEST ensures database resources close properly?", options:["Using try with resources structure","Leaving connections open until exit","Using global static connections","Closing only the Scanner object"], answer:0},
+    
+    {q:"If a JDBC driver is not added correctly what is likely?", options:["The database connection will fail","The recursion will stop working","SQL syntax becomes invalid","Program skips all methods"], answer:0},
+    
+    {q:"What is the primary purpose of JDBC in Java?", options:["Allow Java programs to access databases","Replace SQL language completely","Manage graphical user interfaces","Perform recursive calculations"], answer:0},
+    
+    {q:"Which sequence BEST represents CRUD operations?", options:["Insert Select Update Delete","Select Insert Loop Return","Update Print Delete Input","Create Execute Compile Run"], answer:0},
+    
+    {q:"Why should connection logic be placed in separate method?", options:["Promotes reuse and cleaner structure","Increases number of variables","Avoids using PreparedStatement","Reduces database security"], answer:0},
+    
+    {q:"What is the biggest risk of concatenating SQL with user input?", options:["Unauthorized SQL injection attacks","Faster query execution speed","Automatic data type conversion","Improved memory allocation"], answer:0},
+    
+    {q:"Which design BEST combines modularity and JDBC?", options:["Separate methods for each CRUD operation","One method containing all logic","Nested loops for SQL statements","Multiple scanners in one class"], answer:0},
+    
+    {q:"Why is iteration often more memory efficient than recursion?", options:["It avoids additional call stack frames","It automatically handles base cases","It removes need for conditions","It prevents database connectivity"], answer:0},
+    
+    {q:"Which factor MOST improves maintainability in database systems?", options:["Clear separation of logic and database code","Writing SQL inside main method","Avoiding helper methods entirely","Using hardcoded values everywhere"], answer:0},
+    
+    {q:"Why is modular programming important in team projects?", options:["Developers can work on separate modules","Only one person manages entire code","Removes need for documentation","Guarantees zero logical errors"], answer:0},
+    
+    {q:"Which scenario BEST demonstrates good abstraction?", options:["Hiding connection details inside method","Writing SQL inside print statements","Mixing input and SQL in one block","Declaring all variables public"], answer:0},
+    
+    {q:"What would MOST likely cause a StackOverflowError?", options:["Recursive calls without termination","Too many print statements","Excessive PreparedStatement use","Multiple overloaded methods"], answer:0},
+    
+    {q:"Which improvement BEST enhances security in JDBC applications?", options:["Using parameterized SQL queries","Hardcoding passwords in code","Sharing one global connection","Printing database credentials"], answer:0},
+    
+    {q:"If designing a real Student Management System which is MOST scalable?", options:["Separate classes for models and database","All functions inside main method","Hardcoded SQL without modular methods","Single class with repeated logic"], answer:0}
+];
+
+// ===================== STATE =====================
+let currentQuestion = 0;
+let score = 0;
+let studentAnswers = [];
+
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const nextBtn = document.getElementById("nextBtn");
+const quizBox = document.getElementById("quizBox");
+const scoreContainer = document.getElementById("scoreContainer");
+
+// ===================== SHUFFLE QUIZ =====================
+function shuffleArray(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+}
+shuffleArray(quiz);
+
+// Update total questions
+document.getElementById('totalQuestions').textContent = `Total Questions: ${quiz.length}`;
+
+// ===================== LOAD QUESTION =====================
+function loadQuestion() {
+    nextBtn.classList.add("hidden");
+    questionEl.classList.remove("hidden");
+    optionsEl.classList.remove("hidden");
+
+    const q = quiz[currentQuestion];
+
+    // Shuffle options
+    const options = q.options.map((text,index) => ({text, index}));
+    shuffleArray(options);
+    const correctIndex = options.findIndex(opt => opt.index === q.answer);
+
+    // Show question
+    questionEl.innerHTML = `<h3 class="text-2xl font-bold mb-4 text-center">Question ${currentQuestion+1} of ${quiz.length}</h3><p class="text-lg mb-4 text-center">${q.q}</p>`;
+
+    optionsEl.innerHTML = "";
+    options.forEach((opt,i)=>{
+        const btn = document.createElement("button");
+        btn.innerText = opt.text;
+        btn.className = "block w-full text-left px-4 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold mb-2 text-white";
+
+        if(studentAnswers[currentQuestion]===i){
+            btn.classList.remove("bg-blue-600","text-white");
+            btn.classList.add("bg-yellow-500","text-black");
+        }
+
+        btn.onclick = () => {
+            studentAnswers[currentQuestion] = i;
+            Array.from(optionsEl.children).forEach(b=>{
+                b.classList.remove("bg-yellow-500","text-black");
+                b.classList.add("bg-blue-600","text-white");
+            });
+            btn.classList.remove("bg-blue-600","text-white");
+            btn.classList.add("bg-yellow-500","text-black");
+            nextBtn.classList.remove("hidden");
+        };
+
+        optionsEl.appendChild(btn);
+    });
+
+    quiz[currentQuestion].shuffledAnswer = correctIndex;
+}
+
+// ===================== NEXT BUTTON =====================
+nextBtn.onclick = () => {
+    if(studentAnswers[currentQuestion] === quiz[currentQuestion].shuffledAnswer) score++;
+    currentQuestion++;
+    if(currentQuestion < quiz.length) loadQuestion();
+    else finishQuiz();
+};
+
+// ===================== FINISH QUIZ =====================
+function finishQuiz(){
+    const name = localStorage.getItem("studentName") || "Student";
+    let percent = ((score / quiz.length) * 100).toFixed(2);
+
+    localStorage.setItem("finalScore", score);
+    localStorage.setItem("finalPercent", percent);
+    localStorage.setItem("quizCompleted", "true");
+
+    quizBox.style.display = "none";
+    scoreContainer.style.display = "block";
+
+    // ===== Rating / Greeting =====
+    let greeting = "";
+    if(percent >= 90){
+        greeting = "🌟 Excellent! You aced it!";
+    } else if(percent >= 75){
+        greeting = "👍 Very Good! Keep it up!";
+    } else if(percent >= 50){
+        greeting = "🙂 Good effort! You can improve!";
+    } else {
+        greeting = "😅 Needs Improvement. Keep practicing!";
+    }
+
+    scoreContainer.innerHTML = `
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg text-white text-center">
+            <h2 class="text-3xl font-bold mb-4 text-yellow-400">Quiz Completed 🎉</h2>
+            <p class="text-lg mb-2"><strong>Name:</strong> ${name}</p>
+            <p class="text-xl font-bold">Score: ${score}/${quiz.length}</p>
+            <p class="text-2xl text-green-400 font-bold">${percent}%</p>
+            <p class="text-lg font-bold mt-4 text-indigo-400">${greeting}</p>
+            <div class="space-y-4 mt-6">
+                <button id="completeBtn" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Complete Quiz</button>
+                <button id="downloadBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold">Download Result</button>
+            </div>
+        </div>
+    `;
+
+    // ===== Complete Button =====
+    document.getElementById("completeBtn").onclick = () => {
+        if(confirm("Are you sure you want to officially complete the quiz?")){
+            localStorage.setItem("quizLocked", "true");
+            alert("Quiz officially completed!");
+            location.reload();
+        }
+    };
+
+    // ===== Download Full Question Review =====
+    document.getElementById("downloadBtn").onclick = () => {
+
+        let reviewSection = "";
+
+        quiz.forEach((item, index) => {
+
+            const studentIndex = userAnswers[index];
+            const correctIndex = item.answer;
+
+            const studentAnswer = studentIndex !== undefined
+                ? item.options[studentIndex]
+                : "No Answer";
+
+            const correctAnswer = item.options[correctIndex];
+
+            const result = studentIndex === correctIndex
+                ? "✅ CORRECT"
+                : "❌ WRONG";
+
+            reviewSection += `
+--------------------------------------------------
+Question ${index + 1}:
+${item.q}
+
+Your Answer: ${studentAnswer}
+Correct Answer: ${correctAnswer}
+Result: ${result}
+`;
+        });
+
+        const text = `
+CC103 QUIZ RESULT
+==================================================
+
+Name: ${name}
+Score: ${score}/${quiz.length}
+Percentage: ${percent}%
+Rating: ${greeting}
+
+==================================================
+FULL QUESTION REVIEW
+${reviewSection}
+
+
+`;
+
+        const blob = new Blob([text], { type: "text/plain" });
+        const link = document.createElement("a");
+
+        link.href = URL.createObjectURL(blob);
+        link.download = name + "_cc103.txt";   // required filename
+        link.click();
+    };
+
+    localStorage.removeItem("quizStarted");
+}
+// ===================== START =====================
+document.getElementById("continueBtn").onclick=()=>{
+    const name=document.getElementById("studentName").value.trim();
+    if(!name){ alert("Enter your name."); return;}
+    localStorage.setItem("studentName",name);
+    document.getElementById("nameBox").classList.add("hidden");
+    document.getElementById("instructionBox").classList.remove("hidden");
+};
+document.getElementById("startBtn").onclick=()=>{
+    localStorage.setItem("quizStarted","true");
+    document.getElementById("instructionBox").classList.add("hidden");
+    loadQuestion();
+};
+
+// ===================== TAB SWITCH DETECTION =====================
+document.addEventListener("visibilitychange",()=>{ if(document.hidden && localStorage.getItem("quizStarted")==="true"){ localStorage.setItem("quizTerminated","true"); location.reload(); } });
+</script>
+</body>
+</html>
