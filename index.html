@@ -260,6 +260,55 @@ nextBtn.onclick = () => {
 };
 
 // ===================== FINISH QUIZ =====================
+// ===== Check if Quiz Already Completed =====
+window.onload = () => {
+    if(localStorage.getItem("quizLocked") === "true"){
+    quizBox.style.display = "none";
+    scoreContainer.style.display = "block";
+    scoreContainer.innerHTML = `
+        <div class="bg-gray-800 p-6 rounded-2xl shadow-lg text-white text-center">
+            <h2 class="text-3xl font-bold mb-4 text-red-400">Quiz Locked 🔒</h2>
+            <p class="text-lg mb-2">You have already completed this quiz.</p>
+            <p class="text-xl font-bold">Final Score: ${localStorage.getItem("finalScore")}/${quiz.length}</p>
+            <p class="text-2xl text-green-400 font-bold">${localStorage.getItem("finalPercent")}%</p>
+            <p class="text-lg font-bold mt-4 text-indigo-400">Great job! You cannot retake it.</p>
+
+            <!-- Password Unlock Section -->
+            <div class="mt-6">
+              <input type="password" id="unlockPassword" 
+                placeholder="Enter password to unlock" 
+                class="px-4 py-2 rounded-lg text-black w-64 font-bold"/>
+            <button id="unlockBtn" 
+                class="ml-4 mt-3 px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">
+                Retake Quiz
+            </button>
+
+                <p id="unlockMessage" class="mt-3 text-sm text-red-400"></p>
+            </div>
+        </div>
+    `;
+
+    // ===== Unlock Button Logic =====
+    document.getElementById("unlockBtn").onclick = () => {
+        const entered = document.getElementById("unlockPassword").value;
+        const correctPassword = "admin123"; // <-- set your password here
+
+        if(entered === correctPassword){
+            localStorage.clear(); // clears all quiz data
+            document.getElementById("unlockMessage").textContent = "✅ Quiz unlocked! Reloading...";
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            document.getElementById("unlockMessage").textContent = "❌ Incorrect password!";
+        }
+    };
+}
+ else {
+ 
+        quizBox.style.display = "block";
+        scoreContainer.style.display = "none";
+    }
+};
+
 function finishQuiz(){
     const name = localStorage.getItem("studentName") || "Student";
     let percent = ((score / quiz.length) * 100).toFixed(2);
@@ -286,14 +335,13 @@ function finishQuiz(){
     scoreContainer.innerHTML = `
         <div class="bg-gray-800 p-6 rounded-2xl shadow-lg text-white text-center">
             <h2 class="text-3xl font-bold mb-4 text-yellow-400">Quiz Completed 🎉</h2>
-            <h2 class="text-3xl font-bold mb-4 text-yellow-400">CC103</h2>
             <p class="text-lg mb-2"><strong>Name:</strong> ${name}</p>
             <p class="text-xl font-bold">Score: ${score}/${quiz.length}</p>
             <p class="text-2xl text-green-400 font-bold">${percent}%</p>
             <p class="text-lg font-bold mt-4 text-indigo-400">${greeting}</p>
             <div class="space-y-4 mt-6">
                 <button id="completeBtn" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Complete Quiz</button>
-                <button id="downloadBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold" style="display: none;">Download Result</button>
+                <button id="downloadBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold">Download Result</button>
             </div>
         </div>
     `;
@@ -306,6 +354,8 @@ function finishQuiz(){
             location.reload();
         }
     };
+
+
 
     // ===== Download Full Question Review =====
     document.getElementById("downloadBtn").onclick = () => {
@@ -382,6 +432,4 @@ document.getElementById("startBtn").onclick=()=>{
 document.addEventListener("visibilitychange",()=>{ if(document.hidden && localStorage.getItem("quizStarted")==="true"){ localStorage.setItem("quizTerminated","true"); location.reload(); } });
 </script>
 </body>
-
 </html>
-
