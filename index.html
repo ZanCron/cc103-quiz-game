@@ -286,6 +286,7 @@ function finishQuiz(){
     scoreContainer.innerHTML = `
         <div class="bg-gray-800 p-6 rounded-2xl shadow-lg text-white text-center">
             <h2 class="text-3xl font-bold mb-4 text-yellow-400">Quiz Completed 🎉</h2>
+            <h2 class="text-3xl font-bold mb-4 text-yellow-400">CC103</h2>
             <p class="text-lg mb-2"><strong>Name:</strong> ${name}</p>
             <p class="text-xl font-bold">Score: ${score}/${quiz.length}</p>
             <p class="text-2xl text-green-400 font-bold">${percent}%</p>
@@ -383,3 +384,4 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden && localSt
 </body>
 
 </html>
+
