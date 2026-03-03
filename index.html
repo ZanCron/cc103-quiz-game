@@ -292,7 +292,7 @@ function finishQuiz(){
             <p class="text-lg font-bold mt-4 text-indigo-400">${greeting}</p>
             <div class="space-y-4 mt-6">
                 <button id="completeBtn" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold">Complete Quiz</button>
-                <button id="downloadBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold">Download Result</button>
+                <button id="downloadBtn" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg font-semibold" style="display: none;">Download Result</button>
             </div>
         </div>
     `;
@@ -381,4 +381,5 @@ document.getElementById("startBtn").onclick=()=>{
 document.addEventListener("visibilitychange",()=>{ if(document.hidden && localStorage.getItem("quizStarted")==="true"){ localStorage.setItem("quizTerminated","true"); location.reload(); } });
 </script>
 </body>
+
 </html>
