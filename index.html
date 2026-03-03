@@ -113,6 +113,7 @@ if(localStorage.getItem("quizTerminated") === "true"){
         ACCESS DENIED ❌
         <hr>
         <p class="text-lg mt-3">You are temporarily blocked from this quiz.</p>
+        <small class="text-sm font-normal">Switching tabs, closing and reloading page is prohibited.</small>
         <div class="mt-8 flex flex-col items-center space-y-4 w-full max-w-md px-4">
             <input type="password" id="adminPass" placeholder="Enter password"
                 class="p-2  text-lg w-80 rounded border text-black text-lg">
@@ -434,6 +435,7 @@ document.addEventListener("visibilitychange",()=>{ if(document.hidden && localSt
 </script>
 </body>
 </html>
+
 
 
 
